@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const nodemailer = require("nodemailer");
+const util = require("util");
 const cheerio = require("cheerio");
 
 const simpleParser = require("mailparser").simpleParser;
@@ -24,7 +25,7 @@ var imap = new Imap({
   debug: console.log, // Or your custom function with only one incoming argument. Default: null
   tlsOptions: { rejectUnauthorized: false },
   mailbox: "INBOX", // mailbox to monitor
-  searchFilter: ["UNSEEN", "FLAGGED"], // the search filter being used after an IDLE notification has been retrieved
+  searchFilter: ["UNSEEN"], // the search filter being used after an IDLE notification has been retrieved
   markSeen: true, // all fetched email willbe marked as seen and not fetched next time
   fetchUnreadOnStart: true, // use it only if you want to get all unread email on lib start. Default is `false`,
   mailParserOptions: { streamAttachments: true }, // options to be passed to mailParser lib.
@@ -32,10 +33,42 @@ var imap = new Imap({
   attachmentOptions: { directory: "attachments/" } // specify a download directory for attachments
 });
 
-// Recieving Mail
+// Parsing Mail
 
 function openInbox(cb) {
   imap.openBox("INBOX", true, cb);
+}
+
+function formatAppointments(arr) {
+  const BREAK = "Break";
+  const CUS_SOLUTIONS = "Customer Solutions";
+  const LUNCH = "Lunch";
+  const TECH_CS = "Tech/CS";
+  const TEAM = "Team";
+  const newArr = arr.forEach((item, index) => {
+    if (item.includes(CUS_SOLUTIONS)) {
+      item = item.split(CUS_SOLUTIONS);
+      item.join(" woopers! ");
+    }
+    if (item.includes(BREAK)) {
+      item = item.split(BREAK);
+      item.join(" <><><><><><><><>! ");
+    }
+    if (item.includes(LUNCH)) {
+      item = item.split(LUNCH);
+      item.join(" woopers! ");
+    }
+    if (item.includes(TECH_CS)) {
+      item = item.split(TECH_CS);
+      item.join(" woopers! ");
+    }
+    if (item.includes(TEAM)) {
+      item = item.split(TEAM);
+      item.join(" woopers! ");
+    }
+  });
+  console.log(newArr);
+  //console.log(arr);
 }
 
 imap.once("ready", function() {
@@ -55,18 +88,16 @@ imap.once("ready", function() {
         // use a specialized mail parsing library (https://github.com/andris9/mailparser)
         simpleParser(stream, (err, mail) => {
           //console.log(prefix + mail.subject);
-          const appointments = [];
+          let appointments = [];
           //console.log(prefix + mail.text);
-          let $ = cheerio.load(mail.html.trim());
+          let $ = cheerio.load(mail.html);
           $("tr").each(function(i, el) {
-            let appointment = $(this)
+            let campaign = $(this)
               .find("td")
-              .text()
-              .trim();
-            appointments.push(appointment);
+              .text();
+            appointments.push(campaign);
           });
-          console.log("length: " + appointments.length);
-          //console.log(rows[0].trim());
+          formatAppointments(appointments);
         });
 
         // or, write to file
