@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const nodemailer = require("nodemailer");
+const cheerio = require("cheerio");
 
 const simpleParser = require("mailparser").simpleParser;
 
@@ -40,52 +41,55 @@ function openInbox(cb) {
 imap.once("ready", function() {
   openInbox(function(err, box) {
     if (err) throw err;
-    console.log(box.messages.total + " message(s) found!");
+    //console.log(box.messages.total + " message(s) found!");
     // 1:* - Retrieve all messages
     // 3:5 - Retrieve messages #3,4,5
     var f = imap.seq.fetch("1:1", {
       bodies: ""
     });
     f.on("message", function(msg, seqno) {
-      console.log("Message #%d", seqno);
+      //console.log("Message #%d", seqno);
       var prefix = "(#" + seqno + ") ";
 
       msg.on("body", function(stream, info) {
         // use a specialized mail parsing library (https://github.com/andris9/mailparser)
         simpleParser(stream, (err, mail) => {
-          console.log(prefix + mail.subject);
-          console.log(prefix + mail.text);
+          //console.log(prefix + mail.subject);
+          const rows = [];
+          //console.log(prefix + mail.text);
+          let $ = cheerio.load(mail.html.trim());
+          $("tr").each(function(i, el) {
+            rows.push(
+              $(this)
+                .text()
+                .trim()
+            );
+          });
+          console.log(rows[0].trim());
         });
 
         // or, write to file
         //stream.pipe(fs.createWriteStream('msg-' + seqno + '-body.txt'));
       });
       msg.once("attributes", function(attrs) {
-        console.log(prefix + "Attributes: %s", inspect(attrs, false, 8));
+        //console.log(prefix + "Attributes: %s", inspect(attrs, false, 8));
       });
       msg.once("end", function() {
-        console.log(prefix + "Finished");
+        //console.log(prefix + "Finished");
       });
     });
     f.once("error", function(err) {
-      console.log("Fetch error: " + err);
+      //console.log("Fetch error: " + err);
     });
     f.once("end", function() {
-      console.log("Done fetching all messages!");
+      //console.log("Done fetching all messages!");
       imap.end();
     });
-
-    // search example
-    //    imap.search([ 'UNSEEN', ['SINCE', 'May 20, 2010'] ], function(err, results) {
-    //      if (err) throw err;
-    //      var f = imap.fetch(results, { bodies: '' });
-    //      ...
-    //    }
   });
 });
 
 imap.once("error", function(err) {
-  console.log(err);
+  //console.log(err);
 });
 
 imap.once("end", function() {
