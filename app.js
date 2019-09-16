@@ -55,17 +55,18 @@ imap.once("ready", function() {
         // use a specialized mail parsing library (https://github.com/andris9/mailparser)
         simpleParser(stream, (err, mail) => {
           //console.log(prefix + mail.subject);
-          const rows = [];
+          const appointments = [];
           //console.log(prefix + mail.text);
           let $ = cheerio.load(mail.html.trim());
           $("tr").each(function(i, el) {
-            rows.push(
-              $(this)
-                .text()
-                .trim()
-            );
+            let appointment = $(this)
+              .find("td")
+              .text()
+              .trim();
+            appointments.push(appointment);
           });
-          console.log(rows[0].trim());
+          console.log("length: " + appointments.length);
+          //console.log(rows[0].trim());
         });
 
         // or, write to file
