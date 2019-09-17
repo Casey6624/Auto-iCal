@@ -45,29 +45,31 @@ function formatAppointments(arr) {
   const LUNCH = "Lunch";
   const TECH_CS = "Tech/CS";
   const TEAM = "Team";
-  const newArr = arr.forEach((item, index) => {
+  arr.forEach((item, index) => {
     if (item.includes(CUS_SOLUTIONS)) {
       item = item.split(CUS_SOLUTIONS);
-      item.join(" woopers! ");
+      arr[index] = item.join(" ");
     }
     if (item.includes(BREAK)) {
       item = item.split(BREAK);
-      item.join(" <><><><><><><><>! ");
+      arr[index] = item.join(" ");
     }
     if (item.includes(LUNCH)) {
       item = item.split(LUNCH);
-      item.join(" woopers! ");
+      arr[index] = item.join(" ");
     }
     if (item.includes(TECH_CS)) {
       item = item.split(TECH_CS);
-      item.join(" woopers! ");
+      arr[index] = item.join(" ");
     }
     if (item.includes(TEAM)) {
       item = item.split(TEAM);
-      item.join(" woopers! ");
+      arr[index] = item.join(" ");
     }
   });
-  console.log(newArr);
+  const test = arr[11].trim().split("\n")
+  console.log(test)
+
   //console.log(arr);
 }
 

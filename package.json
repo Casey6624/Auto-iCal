@@ -4,7 +4,8 @@
   "description": "Generate iCal calendar from email",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "nodemon app.js",
+    "debug": "node --inspect app.js"
   },
   "author": "Casey Smith",
   "license": "MIT",
