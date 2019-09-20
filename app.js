@@ -46,6 +46,7 @@ function formatAppointments(arr) {
   const TECH_CS = "Tech/CS";
   const TEAM = "Team";
   arr.forEach((item, index) => {
+    // String manipulation to add a space between the time and appointment
     if (item.includes(CUS_SOLUTIONS)) {
       item = item.split(CUS_SOLUTIONS);
       arr[index] = item.join(" ");
@@ -65,10 +66,17 @@ function formatAppointments(arr) {
     if (item.includes(TEAM)) {
       item = item.split(TEAM);
       arr[index] = item.join(" ");
+      console.log(item)
     }
   });
+  const obj = {}
   const test = arr[11].trim().split("\n")
-  console.log(test)
+  if(test[1] === "Off") console.log("ignore")// continue
+  if(test[1] === "CSC"){
+    obj.date = test[2] 
+    obj.workHours = test[3]
+  }
+  //console.log(test)
 
   //console.log(arr);
 }
